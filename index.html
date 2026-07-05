@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天玑识骨 · 答辩备战工作台</title>
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- PDF.js for PDF page extraction -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          DEFAULT: '#0891B2',
+          50: '#ECFEFF',
+          100: '#CFFAFE',
+          200: '#A5F3FC',
+          300: '#67E8F9',
+          400: '#22D3EE',
+          500: '#06B6D4',
+          600: '#0891B2',
+          700: '#0E7490',
+          800: '#155E75',
+          900: '#164E63',
+        }
+      },
+      fontFamily: {
+        heading: ['Figtree', 'system-ui', 'sans-serif'],
+        body: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+
+<!-- Google Fonts: Figtree for headings -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── CSS Variables (Light Theme) ── */
+:root {
+  --accent: #0891B2;
+  --accent-hover: #0E7490;
+  --accent-light: #ECFEFF;
+  --bg: #FAFAF9;
+  --card: #FFFFFF;
+  --border: #E7E5E4;
+  --text: #1C1917;
+  --text-dim: #78716C;
+  --success: #059669;
+  --warning: #D97706;
+  --danger: #DC2626;
+}
+
+/* ── Base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Figtree', system-ui, sans-serif;
+}
+
+/* ── Focus visible ── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Spinner animation ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+.spinner-lg {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
+
+/* ── Pulse animation for skeleton loading ── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--border) 25%,
+    #F5F5F4 50%,
+    var(--border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ── Navigation ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 56px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 24px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.navbar-brand {
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 32px;
+  height: 100%;
+}
+.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 100%;
+  font-size: 0.938rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav-tab:hover {
+  color: var(--text);
+  background: rgba(8, 145, 178, 0.04);
+}
+.nav-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.nav-tab[aria-selected="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btn-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+  font-family: system-ui, sans-serif;
+}
+.btn-upload:hover {
+  background: var(--accent-light);
+  color: var(--accent-hover);
+}
+.btn-upload:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.status-text {
+  font-size: 0.813rem;
+  color: var(--text-dim);
+}
+
+/* ── Tab panels ── */
+.tab-panel {
+  display: none;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+.tab-panel.active {
+  display: block;
+}
+#panel-learn.active {
+  display: flex;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  height: calc(100vh - 56px);
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+/* ── Empty state ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--text-dim);
+}
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.empty-state h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 8px 0;
+}
+.empty-state p {
+  font-size: 0.938rem;
+  margin: 0;
+  max-width: 400px;
+  line-height: 1.7;
+}
+
+/* ── Search input ── */
+.search-wrapper {
+  position: relative;
+  max-width: 520px;
+  width: 100%;
+}
+.search-wrapper .search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+.search-input {
+  width: 100%;
+  padding: 10px 14px 10px 42px;
+  font-size: 0.938rem;
+  font-family: system-ui, sans-serif;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.search-input::placeholder {
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+/* ── Toast notification ── */
+.toast-container {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  font-size: 0.875rem;
+  color: var(--text);
+  pointer-events: auto;
+  animation: toastIn 0.3s ease forwards;
+  max-width: 380px;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.warning { border-left: 3px solid var(--warning); }
+.toast.error   { border-left: 3px solid var(--danger);  }
+.toast.info    { border-left: 3px solid var(--accent);   }
+.toast.removing {
+  animation: toastOut 0.25s ease forwards;
+}
+.toast-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.toast-message {
+  flex: 1;
+  line-height: 1.4;
+}
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0);    }
+  to   { opacity: 0; transform: translateX(40px); }
+}
+
+/* ── Screen reader only ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Transition utilities ── */
+.fade-in {
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* ── Slide Assignment Panel ── */
+.assign-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.3); display: none; align-items: center; justify-content: center; }
+.assign-overlay.visible { display: flex; }
+.assign-panel { background: var(--card); border-radius: 12px; width: 95vw; max-width: 1200px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
+.assign-header { padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.assign-header h3 { font-family: Figtree, system-ui, sans-serif; font-size: 1rem; color: var(--text); margin: 0; }
+.assign-close { border: none; background: none; font-size: 1.2rem; cursor: pointer; color: var(--text-dim); padding: 4px 8px; border-radius: 4px; }
+.assign-close:hover { background: #f5f5f5; color: var(--text); }
+.assign-body { flex: 1; display: flex; overflow: hidden; }
+.assign-left { width: 260px; border-right: 1px solid var(--border); overflow-y: auto; padding: 0.5rem; background: #fafaf9; flex-shrink: 0; }
+.assign-node { padding: 0.55rem 0.6rem; margin: 2px 0; border-radius: 6px; cursor: pointer; border-left: 2px solid transparent; transition: all 0.12s; font-size: 0.82rem; }
+.assign-node:hover { background: #f0f0f0; }
+.assign-node.selected { background: var(--accent-light); border-left-color: var(--accent); }
+.assign-node.assigned { border-left-color: #22C55E; }
+.assign-node .node-name { font-weight: 600; color: var(--text); }
+.assign-node .node-status { font-size: 0.68rem; color: var(--text-dim); margin-top: 1px; }
+.assign-node.selected .node-status, .assign-node.assigned .node-status { color: var(--accent); }
+.assign-right { flex: 1; overflow-y: auto; padding: 0.75rem; }
+.assign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; }
+.assign-slide { aspect-ratio: 16/9; border-radius: 6px; border: 2px solid var(--border); cursor: pointer; position: relative; overflow: hidden; background: #f5f5f5; transition: all 0.12s; }
+.assign-slide:hover { border-color: #94a3b8; transform: translateY(-1px); }
+.assign-slide.assigned { border-color: #22C55E; }
+.assign-slide.assigned::after { content: '已用'; position: absolute; top: 4px; right: 4px; background: #22C55E; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 3px; z-index: 2; }
+.assign-slide img { width: 100%; height: 100%; object-fit: cover; }
+.assign-slide .slide-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); color: #fff; font-size: 9px; padding: 2px 6px; text-align: center; z-index: 2; }
+.assign-footer { padding: 0.5rem 1rem; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.assign-warning { background: #FFF7ED; border: 1px solid #FDBA74; color: #9A3412; padding: 0.6rem 1rem; margin: 0.5rem; border-radius: 6px; font-size: 0.78rem; display: none; flex-shrink: 0; }
+.assign-warning.visible { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Navigation Bar                               -->
+<!-- ════════════════════════════════════════════ -->
+<nav class="navbar" role="navigation" aria-label="主导航">
+  <span class="navbar-brand">天玑识骨 · 答辩备战工作台</span>
+
+  <div class="nav-tabs" role="tablist" aria-label="工作台标签页">
+    <button class="nav-tab active" role="tab"
+            id="tab-learn"
+            aria-selected="true"
+            aria-controls="panel-learn"
+            data-tab="learn">
+      <span aria-hidden="true">📖</span> 学
+    </button>
+    <button class="nav-tab" role="tab"
+            id="tab-practice"
+            aria-selected="false"
+            aria-controls="panel-practice"
+            data-tab="practice">
+      <span aria-hidden="true">✏️</span> 练
+    </button>
+    <button class="nav-tab" role="tab"
+            id="tab-search"
+            aria-selected="false"
+            aria-controls="panel-search"
+            data-tab="search">
+      <span aria-hidden="true">🔍</span> 查
+    </button>
+  </div>
+
+  <div class="nav-right">
+    <button class="btn-upload" id="btn-upload-ppt"
+            aria-label="上传PDF文件">
+      <span aria-hidden="true">📎</span> 上传PDF
+    </button>
+    <span class="status-text" id="ppt-status"
+          aria-live="polite">未上传PDF</span>
+    <button id="btn-assign-slides" onclick="window.__openAssignPanel()" style="display:none;padding:0.35rem 0.7rem;border:1px solid var(--accent);border-radius:6px;background:var(--card);color:var(--accent);font-size:0.78rem;cursor:pointer;font-family:inherit;" aria-label="分配页面">分配页面</button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Toast Container                             -->
+<!-- ════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Tab Panel: 学 (Learn)                       -->
+<!-- ════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════ -->
+<!--  Tab Panel: 学 (Learn) — two-column layout     -->
+<!-- ════════════════════════════════════════════ -->
+<section class="tab-panel active fade-in" id="panel-learn"
+         role="tabpanel" aria-labelledby="tab-learn" tabindex="0">
+  <!-- Left: Story Map -->
+  <div style="width:280px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:1rem;" id="story-map">
+    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:0.75rem;">项目故事地图</div>
+    <div id="story-nodes"></div>
+  </div>
+  <!-- Right: Content Detail -->
+  <div style="flex:1;overflow-y:auto;padding:1.5rem 2rem;" id="story-detail">
+    <div style="max-width:720px;margin:0 auto;text-align:center;padding-top:4rem;color:var(--text-dim)">
+      <div style="font-size:1.1rem;margin-bottom:0.5rem;">点击左侧故事节点开始学习</div>
+      <div style="font-size:0.85rem;">按顺序阅读，每个节点包含通俗解释、关键数字、PPT 幻灯片和可能的评委提问</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Tab Panel: 练 (Practice)                    -->
+<!-- ════════════════════════════════════════════ -->
+<section class="tab-panel" id="panel-practice"
+         role="tabpanel" aria-labelledby="tab-practice" tabindex="0">
+  <div style="max-width:720px;margin:0 auto;padding:1.5rem 2rem;width:100%;">
+    <div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">
+      <button class="practice-filter active" data-filter="all" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--accent);color:#fff;font-size:0.78rem;cursor:pointer;font-family:inherit;">全部</button>
+      <button class="practice-filter" data-filter="技术" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">技术</button>
+      <button class="practice-filter" data-filter="临床" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">临床</button>
+      <button class="practice-filter" data-filter="创新" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">创新</button>
+      <button class="practice-filter" data-filter="商业" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">商业</button>
+      <button id="btn-random" style="margin-left:auto;padding:0.35rem 0.8rem;border:1px solid var(--accent);border-radius:16px;background:var(--card);color:var(--accent);font-size:0.78rem;cursor:pointer;font-family:inherit;">随机出题</button>
+      <button id="btn-expand-all" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">全部展开</button>
+    </div>
+    <div id="qa-list"><div style="color:var(--text-dim);text-align:center;padding:2rem;">加载中...</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Tab Panel: 查 (Search)                      -->
+<!-- ════════════════════════════════════════════ -->
+<section class="tab-panel" id="panel-search"
+         role="tabpanel" aria-labelledby="tab-search" tabindex="0">
+  <div style="max-width:720px;margin:0 auto;padding:1.5rem 2rem;width:100%;">
+    <div style="margin-bottom:1rem;">
+      <input type="text" id="search-input" placeholder="搜索任何内容 — 函数名、关键词、问题、幻灯片..." style="width:100%;padding:0.7rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:inherit;outline:none;color:var(--text);background:var(--card);">
+    </div>
+    <div id="search-results" style="font-size:0.85rem;color:var(--text-dim);">输入至少两个字符开始搜索</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Hidden file input for PPT upload            -->
+<!-- ════════════════════════════════════════════ -->
+<input type="file" id="ppt-file-input" accept=".pdf"
+       style="display: none;" aria-hidden="true">
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Scripts                                     -->
+<!-- ════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  /* ─── Global state ─── */
+  const state = {
+    activeTab: 'learn',
+    storyNodes: [],
+    qaItems: [],
+    knowledgeGraph: null,
+    knowledgeBase: [],
+    pptSlides: null,
+    allSlides: [],
+    selectedStoryNode: null,
+    practiceFilter: 'all',
+    practiceMode: 'browse'
+  };
+
+  /* ─── DOM refs ─── */
+  const tabButtons   = document.querySelectorAll('.nav-tab[role="tab"]');
+  const tabPanels    = document.querySelectorAll('.tab-panel[role="tabpanel"]');
+  const btnUpload    = document.getElementById('btn-upload-ppt');
+  const pptFileInput = document.getElementById('ppt-file-input');
+  const pptStatus    = document.getElementById('ppt-status');
+  const toastContainer = document.getElementById('toast-container');
+
+  /* ─── Tab switching ─── */
+  function switchTab(tabName) {
+    if (state.activeTab === tabName) return;
+    state.activeTab = tabName;
+
+    // Update buttons
+    tabButtons.forEach(function(btn) {
+      var isActive = btn.getAttribute('data-tab') === tabName;
+      btn.setAttribute('aria-selected', String(isActive));
+      if (isActive) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Update panels
+    tabPanels.forEach(function(panel) {
+      panel.classList.remove('active', 'fade-in');
+      if (panel.id === 'panel-' + tabName) {
+        panel.classList.add('active', 'fade-in');
+      }
+    });
+  }
+
+  tabButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tabName = this.getAttribute('data-tab');
+      if (tabName) switchTab(tabName);
+    });
+    btn.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+    });
+  });
+
+  /* ─── Toast notification ─── */
+  function showToast(message, type) {
+    type = type || 'info';
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.setAttribute('role', 'status');
+
+    var iconMap = {
+      success: '&#x2705;',
+      warning: '&#x26A0;&#xFE0F;',
+      error:   '&#x274C;',
+      info:    '&#x2139;&#xFE0F;'
+    };
+
+    toast.innerHTML =
+      '<span class="toast-icon" aria-hidden="true">' + (iconMap[type] || iconMap.info) + '</span>' +
+      '<span class="toast-message">' + escapeHtml(message) + '</span>' +
+      '<button class="toast-close" aria-label="关闭通知">&times;</button>';
+
+    toastContainer.appendChild(toast);
+
+    var closeBtn = toast.querySelector('.toast-close');
+    var autoTimer;
+
+    function removeToast() {
+      clearTimeout(autoTimer);
+      toast.classList.add('removing');
+      toast.addEventListener('animationend', function() {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, { once: true });
+      // Fallback removal
+      setTimeout(function() {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 300);
+    }
+
+    closeBtn.addEventListener('click', removeToast);
+
+    autoTimer = setTimeout(removeToast, 3000);
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  /* ─── PPT upload ─── */
+  btnUpload.addEventListener('click', function() {
+    pptFileInput.click();
+  });
+
+  pptFileInput.addEventListener('change', function(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    var validExts = ['.pdf'];
+    var ext = '.' + file.name.split('.').pop().toLowerCase();
+
+    if (validExts.indexOf(ext) === -1) {
+      showToast('请选择 .ppt 或 .pptx 格式的文件', 'warning');
+      pptFileInput.value = '';
+      return;
+    }
+
+    pptStatus.textContent = '正在提取PDF页面…';
+    showToast('正在解析 PDF 文件 (' + file.name + ')，请稍候…', 'info');
+
+    var reader = new FileReader();
+    reader.onload = function(evt) {
+      var arrayBuffer = evt.target.result;
+      // Use PDF.js to render each page as an image
+      if (typeof pdfjsLib !== 'undefined' && ext === '.pdf') {
+        var loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        loadingTask.promise.then(function(pdf) {
+          var totalPages = pdf.numPages;
+          if (totalPages === 0) {
+            state.pptSlides = null;
+            state.allSlides = [];
+            pptStatus.textContent = 'PDF 为空';
+            showToast('PDF 文件没有页面', 'warning');
+            return;
+          }
+          if (totalPages > 50) {
+            showToast('PDF 共 ' + totalPages + ' 页，仅提取前 50 页以避免卡顿', 'warning');
+            totalPages = 50;
+          }
+          pptStatus.textContent = '正在渲染 PDF (' + totalPages + '页)...';
+          var allSlides = [];
+          var rendered = 0;
+          function renderNextPage(pageNum) {
+            if (pageNum > totalPages) {
+              // All done
+              state.allSlides = allSlides;
+              state.pptSlides = {};
+              localStorage.removeItem('defense-prep-slide-mapping');
+              try {
+                var saved = localStorage.getItem('defense-prep-slide-mapping');
+                if (saved) {
+                  var mapping = JSON.parse(saved);
+                  Object.keys(mapping).forEach(function(nodeId) {
+                    var validSlides = mapping[nodeId].filter(function(slideIdx) { return slideIdx >= 0 && slideIdx < allSlides.length; });
+                    if (validSlides.length > 0) {
+                      if (!state.pptSlides) state.pptSlides = {};
+                      state.pptSlides[nodeId] = validSlides.map(function(idx) { return allSlides[idx].url; });
+                    }
+                  });
+                }
+              } catch(e) {}
+              pptStatus.textContent = 'PDF: ' + file.name + ' (' + allSlides.length + '页)';
+              showToast('PDF 渲染完成 (' + allSlides.length + '页)，点击「分配页面」关联到故事节点', 'success');
+              var assignBtn = document.getElementById('btn-assign-slides');
+              if (assignBtn) assignBtn.style.display = '';
+              return;
+            }
+            pdf.getPage(pageNum).then(function(page) {
+              var scale = 1.0;
+              var viewport = page.getViewport({ scale: scale });
+              var canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              var ctx = canvas.getContext('2d');
+              return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function() {
+                allSlides.push({
+                  index: pageNum - 1,
+                  url: canvas.toDataURL('image/jpeg', 0.85),
+                  size: canvas.width * canvas.height,
+                  pageLabel: '第' + pageNum + '页'
+                });
+                rendered++;
+                if (rendered % 5 === 0 || pageNum === totalPages) {
+                  pptStatus.textContent = '正在渲染 PDF (' + rendered + '/' + totalPages + '页)...';
+                }
+                renderNextPage(pageNum + 1);
+              });
+            }).catch(function(err) {
+              console.error('PDF page render error:', err);
+              renderNextPage(pageNum + 1);
+            });
+          }
+          renderNextPage(1);
+        });
+      }
+    };
+    reader.onerror = function() {
+        pptStatus.textContent = '解析失败';
+        showToast('PDF 文件读取失败，请重试', 'error');
+      };
+      reader.readAsArrayBuffer(file);
+      pptFileInput.value = '';
+    });
+
+  // ═══════════════ Search Panel ═══════════════
+  var searchTimeout = null;
+  document.addEventListener('input', function(e) {
+    if (e.target.id !== 'search-input') return;
+    clearTimeout(searchTimeout);
+    var q = e.target.value.toLowerCase().trim();
+    var results = document.getElementById('search-results');
+    if (!results) return;
+    if (q.length < 2) {
+      results.innerHTML = '<div style="font-size:0.85rem;color:var(--text-dim);">输入至少两个字符开始搜索</div>';
+      return;
+    }
+    // Debounce
+    searchTimeout = setTimeout(function() { performSearch(q); }, 200);
+  });
+
+  function performSearch(q) {
+    var results = document.getElementById('search-results');
+    if (!results) return;
+    var sections = [];
+
+    // Search Q&A
+    var qaMatches = state.qaItems.filter(function(item) {
+      return item.question.toLowerCase().indexOf(q) !== -1 ||
+             item.answer.toLowerCase().indexOf(q) !== -1 ||
+             item.tags.some(function(t) { return t.indexOf(q) !== -1; });
+    });
+    if (qaMatches.length > 0) {
+      sections.push({
+        title: 'Q&A (' + qaMatches.length + '条)',
+        items: qaMatches.map(function(qa) {
+          return '<div style="padding:0.4rem 0;cursor:pointer;border-bottom:1px solid var(--border);" data-search-qa="' + qa.id + '">Q' + qa.id + ': ' + qa.question + '</div>';
+        })
+      });
+    }
+
+    // Search story nodes
+    var nodeMatches = state.storyNodes.filter(function(n) {
+      return n.title.toLowerCase().indexOf(q) !== -1 ||
+             n.summary.toLowerCase().indexOf(q) !== -1 ||
+             (n.keywords||[]).some(function(k) { return k.toLowerCase().indexOf(q) !== -1; });
+    });
+    if (nodeMatches.length > 0) {
+      sections.push({
+        title: '学习节点 (' + nodeMatches.length + '个)',
+        items: nodeMatches.map(function(n) {
+          return '<div style="padding:0.4rem 0;cursor:pointer;border-bottom:1px solid var(--border);" data-search-learn="' + n.id + '">' + n.order + '. ' + n.title + '</div>';
+        })
+      });
+    }
+
+    // Search knowledge graph
+    if (state.knowledgeGraph && state.knowledgeGraph.nodes) {
+      var graphMatches = state.knowledgeGraph.nodes.filter(function(n) {
+        var s = ((n.name||'') + n.id + (n.summary||'') + (n.tags||[]).join(' ')).toLowerCase();
+        return s.indexOf(q) !== -1;
+      }).slice(0, 10);
+      if (graphMatches.length > 0) {
+        sections.push({
+          title: '代码模块 (' + graphMatches.length + '个)',
+          items: graphMatches.map(function(n) {
+            var name = (n.name||n.id).replace(/.*[\/:]/,'');
+            return '<div style="padding:0.4rem 0;font-size:0.8rem;border-bottom:1px solid var(--border);">' +
+              '<span style="color:var(--accent);">' + (n.type||'') + '</span> ' + name +
+              (n.summary ? ' <span style="color:var(--text-dim);">' + n.summary.slice(0,80) + '</span>' : '') +
+              '</div>';
+          })
+        });
+      }
+    }
+
+    // Search knowledge base
+    if (state.knowledgeBase && Array.isArray(state.knowledgeBase)) {
+      var kbMatches = state.knowledgeBase.filter(function(e) {
+        return (e.question + e.answer).toLowerCase().indexOf(q) !== -1;
+      }).slice(0, 5);
+      if (kbMatches.length > 0) {
+        sections.push({
+          title: '骨科知识库 (' + kbMatches.length + '条)',
+          items: kbMatches.map(function(k) {
+            return '<div style="padding:0.4rem 0;border-bottom:1px solid var(--border);">' + k.question + '</div>';
+          })
+        });
+      }
+    }
+
+    results.innerHTML = sections.length > 0
+      ? sections.map(function(s) {
+          return '<div style="margin-bottom:1rem;"><div style="font-weight:600;color:var(--text);margin-bottom:0.4rem;font-size:0.82rem;">' + s.title + '</div>' + s.items.join('') + '</div>';
+        }).join('')
+      : '<div style="color:var(--text-dim);padding:1rem;text-align:center;">未找到匹配结果，试试其他关键词</div>';
+  }
+
+  function jumpToLearn(nodeId) {
+    document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    document.getElementById('tab-learn').classList.add('active');
+    document.getElementById('tab-learn').setAttribute('aria-selected','true');
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('panel-learn').classList.add('active');
+    state.activeTab = 'learn';
+    setTimeout(function() { selectStoryNode(nodeId); }, 150);
+  }
+
+  function jumpToQA(qaId) {
+    document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    document.getElementById('tab-practice').classList.add('active');
+    document.getElementById('tab-practice').setAttribute('aria-selected','true');
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('panel-practice').classList.add('active');
+    state.activeTab = 'practice';
+    setTimeout(function() {
+      var answer = document.getElementById('qa-answer-' + qaId);
+      if (answer) answer.style.display = 'block';
+      var card = document.getElementById('qa-' + qaId);
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+  }
+
+  /* ─── Expose state & helpers globally ─── */
+  window.__defenseState = state;
+  window.__switchTab    = switchTab;
+  window.__showToast    = showToast;
+
+  console.log('%c天玑识骨 · 答辩备战工作台 %c已就绪',
+    'color: #0891B2; font-weight: bold;', 'color: inherit;');
+  console.log('%cTab: %c' + state.activeTab + ' %c| Nodes: %c' + state.storyNodes.length,
+    'color: #78716C;', 'color: #1C1917; font-weight: bold;',
+    'color: #78716C;', 'color: #1C1917;');
+
+  /* ═══════════════ Data Loading ═══════════════ */
+  async function loadData() {
+    let loaded = 0;
+    try {
+      const r = await fetch('story-nodes.json');
+      state.storyNodes = await r.json();
+      showToast('已加载学习节点 (' + state.storyNodes.length + '个)', 'success');
+      renderStoryMap();
+    } catch(e) { showToast('故事节点加载失败: ' + e.message, 'error'); }
+    try {
+      const r = await fetch('qa-items.json');
+      state.qaItems = await r.json();
+      showToast('已加载Q&A (' + state.qaItems.length + '题)', 'success');
+      renderPracticeList();
+    } catch(e) { showToast('Q&A加载失败: ' + e.message, 'error'); }
+    try {
+      const r = await fetch('../.understand-anything/knowledge-graph.json');
+      state.knowledgeGraph = await r.json();
+    } catch(e) { /* silent */ }
+    try {
+      const r = await fetch('../src/config/knowledge_base.json');
+      state.knowledgeBase = await r.json();
+    } catch(e) { /* silent */ }
+
+    // Auto-load default PDF (render in background after UI is ready)
+    autoLoadPDF();
+
+  }
+
+  function autoLoadPDF() {
+    var BATCH_SIZE = 3;
+    var SCALE = 0.5; // thumbnail resolution is enough for the picker
+    pptStatus.textContent = '正在加载默认 PDF...';
+    fetch('default.pdf').then(function(resp) {
+      if (!resp.ok) throw new Error('default.pdf not found');
+      return resp.arrayBuffer();
+    }).then(function(arrayBuffer) {
+      var loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      return loadingTask.promise;
+    }).then(function(pdf) {
+      var totalPages = pdf.numPages;
+      if (totalPages > 50) totalPages = 50;
+      pptStatus.textContent = '正在渲染默认 PDF (0/' + totalPages + '页)...';
+      var allSlides = [];
+      var rendered = 0;
+      function renderBatch(startPage) {
+        if (startPage > totalPages) {
+          state.allSlides = allSlides;
+          state.pptSlides = {};
+          try {
+            var saved = localStorage.getItem('defense-prep-slide-mapping');
+            if (saved) {
+              var mapping = JSON.parse(saved);
+              Object.keys(mapping).forEach(function(nodeId) {
+                var validSlides = mapping[nodeId].filter(function(idx) { return idx >= 0 && idx < allSlides.length; });
+                if (validSlides.length > 0) {
+                  state.pptSlides[nodeId] = validSlides.map(function(idx) { return allSlides[idx].url; });
+                }
+              });
+            }
+          } catch(e) {}
+          pptStatus.textContent = '默认PDF (' + allSlides.length + '页) | 可上传替换';
+          var assignBtn = document.getElementById('btn-assign-slides');
+          if (assignBtn) assignBtn.style.display = '';
+          showToast('默认 PDF 已加载 (' + allSlides.length + '页)', 'success');
+          return;
+        }
+        var endPage = Math.min(startPage + BATCH_SIZE - 1, totalPages);
+        var batchPromises = [];
+        for (var p = startPage; p <= endPage; p++) {
+          batchPromises.push((function(pageNum) {
+            return pdf.getPage(pageNum).then(function(page) {
+              var viewport = page.getViewport({ scale: SCALE });
+              var canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              var ctx = canvas.getContext('2d');
+              return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function() {
+                allSlides[pageNum - 1] = {
+                  index: pageNum - 1,
+                  url: canvas.toDataURL('image/jpeg', 0.8),
+                  size: canvas.width * canvas.height,
+                  pageLabel: '第' + pageNum + '页'
+                };
+                rendered++;
+                pptStatus.textContent = '正在渲染默认 PDF (' + rendered + '/' + totalPages + '页)...';
+              });
+            });
+          })(p));
+        }
+        Promise.all(batchPromises).then(function() {
+          renderBatch(endPage + 1);
+        });
+      }
+      renderBatch(1);
+    }).catch(function(e) {
+      pptStatus.textContent = '未上传PDF';
+      console.log('默认 PDF 加载失败（可手动上传）:', e.message);
+    });
+  }
+
+  // (end of loadData replacement) old auto-load moved to autoLoadPDF above
+
+  function renderStoryMap() {
+    const container = document.getElementById('story-nodes');
+    if (!container) return;
+    container.innerHTML = state.storyNodes.map((node, i) => {
+      const isFirst = (i === 0);
+      return '<div class="story-node' + (isFirst ? ' active' : '') + '" data-id="' + node.id + '" style="display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.5rem;border-radius:8px;cursor:pointer;margin-bottom:0.25rem;transition:all 0.15s;border-left:2px solid ' + (isFirst ? 'var(--accent)' : 'transparent') + ';background:' + (isFirst ? 'var(--accent-light)' : 'transparent') + ';"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:' + (isFirst ? 'var(--accent)' : '#F5F5F4') + ';color:' + (isFirst ? '#fff' : 'var(--text-dim)') + ';font-size:0.7rem;font-weight:700;flex-shrink:0;">' + node.order + '</span><div style="flex:1;min-width:0;"><div style="font-size:0.82rem;font-weight:600;color:var(--text);">' + node.title + '</div>' + (node.subtitle ? '<div style="font-size:0.68rem;color:var(--accent);">' + node.subtitle + '</div>' : '') + '</div></div>';
+    }).join('');
+    // Event delegation for story map clicks (fix: functions are inside IIFE, not global)
+    container.onclick = function(e) {
+      var nodeEl = e.target.closest('.story-node');
+      if (!nodeEl) return;
+      selectStoryNode(nodeEl.dataset.id, nodeEl);
+    };
+    if (state.storyNodes.length > 0) {
+      selectStoryNode(state.storyNodes[0].id);
+    }
+  }
+
+  function selectStoryNode(nodeId, el) {
+    state.selectedStoryNode = nodeId;
+    // Reset all node styles
+    document.querySelectorAll('.story-node').forEach(n => {
+      n.style.background = 'transparent';
+      n.style.borderLeftColor = 'transparent';
+      n.classList.remove('active');
+      var numSpan = n.querySelector('span:first-child');
+      if (numSpan) { numSpan.style.background = '#F5F5F4'; numSpan.style.color = 'var(--text-dim)'; }
+    });
+    // Highlight selected
+    if (el) {
+      el.style.background = 'var(--accent-light)';
+      el.style.borderLeftColor = 'var(--accent)';
+      el.classList.add('active');
+      var numSpan = el.querySelector('span:first-child');
+      if (numSpan) { numSpan.style.background = 'var(--accent)'; numSpan.style.color = '#fff'; }
+    } else {
+      // Find by data-id
+      var target = document.querySelector('.story-node[data-id="' + nodeId + '"]');
+      if (target) {
+        target.style.background = 'var(--accent-light)';
+        target.style.borderLeftColor = 'var(--accent)';
+        target.classList.add('active');
+        var numSpan = target.querySelector('span:first-child');
+        if (numSpan) { numSpan.style.background = 'var(--accent)'; numSpan.style.color = '#fff'; }
+      }
+    }
+    renderStoryDetail(nodeId);
+  }
+
+  function renderStoryDetail(nodeId) {
+    var node = state.storyNodes.find(function(n) { return n.id === nodeId; });
+    if (!node) return;
+    var detail = document.getElementById('story-detail');
+    var relatedQAs = state.qaItems.filter(function(q) { return node.qaIds && node.qaIds.indexOf(q.id) !== -1; });
+    var graphMatches = findRelatedGraphNodes(node.keywords || []);
+    var kbMatches = findRelatedKBItems(node.keywords || []);
+    var html = '<div style="max-width:720px;margin:0 auto;">';
+    html += '<div style="margin-bottom:1.5rem;">';
+    html += '<h2 style="font-family:Figtree,system-ui,sans-serif;font-size:1.4rem;color:var(--text);margin-bottom:0.25rem;">' + node.title + '</h2>';
+    if (node.subtitle) html += '<div style="font-size:0.85rem;color:var(--accent);font-weight:500;">' + node.subtitle + '</div>';
+    html += '</div>';
+    html += '<div class="card" style="padding:1.25rem;margin-bottom:1rem;"><div style="font-size:0.95rem;line-height:1.9;color:var(--text);">' + node.summary + '</div></div>';
+
+    // Key numbers
+    if (node.keyNumbers && node.keyNumbers.length > 0) {
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.75rem;margin-bottom:1rem;">';
+      node.keyNumbers.forEach(function(kn) {
+        html += '<div class="card" style="padding:0.8rem;text-align:center;">';
+        html += '<div style="font-size:1.5rem;font-weight:700;color:var(--accent);font-family:Figtree,system-ui,sans-serif;">' + kn.value + '</div>';
+        html += '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:0.15rem;">' + kn.label + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // PPT slides (support multiple per node)
+    var slideUrls = (state.pptSlides && state.pptSlides[nodeId] && state.pptSlides[nodeId].length > 0) ? state.pptSlides[nodeId] : [];
+    if (slideUrls.length > 0) {
+      html += '<div style="margin-bottom:1rem;">';
+      html += '<div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:0.5rem;">PPT 幻灯片 (' + slideUrls.length + '张)</div>';
+      slideUrls.forEach(function(url) {
+        html += '<div class="card" style="padding:0.6rem;margin-bottom:0.4rem;"><img src="' + url + '" style="width:100%;border-radius:4px;border:1px solid var(--border);" alt="幻灯片"></div>';
+      });
+      html += '</div>';
+    } else if (!state.allSlides || state.allSlides.length === 0) {
+      html += '<div class="card" style="padding:0.8rem;margin-bottom:1rem;text-align:center;color:var(--text-dim);font-size:0.78rem;">上传PDF文件后可显示对应幻灯片</div>';
+    }
+
+    // Related Q&A
+    if (relatedQAs.length > 0) {
+      html += '<div style="margin-bottom:1rem;">';
+      html += '<div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">评委可能问 (' + relatedQAs.length + '题)</div>';
+      relatedQAs.forEach(function(q) {
+        html += '<div class="card qa-jump-card" style="padding:0.7rem 0.9rem;margin-bottom:0.4rem;cursor:pointer;" data-qaid="' + q.id + '">';
+        html += '<div style="font-size:0.82rem;color:var(--text);">' + q.question + '</div>';
+        html += '<div style="font-size:0.68rem;color:var(--text-dim);margin-top:0.2rem;">点击跳转到「练」板块查看答案</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // Related materials
+    if (graphMatches.length > 0 || kbMatches.length > 0) {
+      html += '<div style="margin-bottom:1rem;">';
+      html += '<div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">关联资料</div>';
+      graphMatches.forEach(function(g) {
+        html += '<div style="font-size:0.75rem;color:var(--text-dim);padding:0.2rem 0;">' + g.type + ': ' + g.name + (g.summary ? ' - ' + g.summary : '') + '</div>';
+      });
+      kbMatches.forEach(function(k) {
+        html += '<div style="font-size:0.75rem;color:var(--text-dim);padding:0.2rem 0;">知识库: ' + k.question + '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+    detail.innerHTML = html;
+  }
+
+  function findRelatedGraphNodes(keywords) {
+    if (!state.knowledgeGraph || !state.knowledgeGraph.nodes) return [];
+    return state.knowledgeGraph.nodes.filter(function(n) {
+      var s = ((n.name||'') + (n.summary||'') + (n.tags||[]).join(' ')).toLowerCase();
+      return keywords.some(function(kw) { return s.indexOf(kw.toLowerCase()) !== -1; });
+    }).slice(0, 5).map(function(n) {
+      return { type: n.type, name: (n.name||n.id).replace(/.*[\/:]/,''), summary: n.summary ? n.summary.slice(0,80) : '' };
+    });
+  }
+
+  function findRelatedKBItems(keywords) {
+    if (!state.knowledgeBase || !Array.isArray(state.knowledgeBase)) return [];
+    return state.knowledgeBase.filter(function(entry) {
+      var s = (entry.question + ' ' + (entry.keywords||[]).join(' ')).toLowerCase();
+      return keywords.some(function(kw) { return s.indexOf(kw.toLowerCase()) !== -1; });
+    }).slice(0, 5);
+  }
+
+  function switchToPractice(qaId) {
+    document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    var practiceTab = document.getElementById('tab-practice');
+    if (practiceTab) { practiceTab.classList.add('active'); practiceTab.setAttribute('aria-selected','true'); }
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    var practicePanel = document.getElementById('panel-practice');
+    if (practicePanel) { practicePanel.classList.add('active'); }
+    state.activeTab = 'practice';
+    setTimeout(function() {
+      var answer = document.getElementById('qa-answer-' + qaId);
+      if (answer) { answer.style.display = 'block'; }
+      var qaCard = document.getElementById('qa-' + qaId);
+      if (qaCard) { qaCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    }, 200);
+  }
+
+  // ═══════════════ Practice Panel ═══════════════
+  function renderPracticeList(filter) {
+    filter = filter || 'all';
+    state.practiceFilter = filter;
+    var container = document.getElementById('qa-list');
+    if (!container) return;
+    var filtered = state.qaItems.filter(function(q) { return filter === 'all' || q.tags.indexOf(filter) !== -1; });
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">该分类暂无题目</div>';
+      return;
+    }
+    container.innerHTML = filtered.map(function(q) {
+      return '<div class="card" style="padding:0.9rem 1rem;margin-bottom:0.5rem;" id="qa-' + q.id + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.25rem;">Q' + q.id + '. ' + q.question + '</div>' +
+            '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;">' +
+              q.tags.map(function(t) { return '<span style="font-size:0.62rem;padding:0.1rem 0.4rem;border-radius:8px;background:var(--accent-light);color:var(--accent);">' + t + '</span>'; }).join('') +
+            '</div>' +
+          '</div>' +
+          '<button class="qa-toggle" data-id="' + q.id + '" style="flex-shrink:0;padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--accent);font-size:0.75rem;cursor:pointer;font-family:inherit;white-space:nowrap;">查看答案</button>' +
+        '</div>' +
+        '<div class="qa-answer" id="qa-answer-' + q.id + '" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;line-height:1.8;color:var(--text);">' + q.answer + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function toggleAnswer(qaId, btn) {
+    var answer = document.getElementById('qa-answer-' + qaId);
+    if (!answer) return;
+    var isHidden = answer.style.display === 'none';
+    answer.style.display = isHidden ? 'block' : 'none';
+    if (btn) btn.textContent = isHidden ? '收起答案' : '查看答案';
+  }
+
+  function randomQuestion() {
+    var filtered = state.qaItems.filter(function(q) {
+      return state.practiceFilter === 'all' || q.tags.indexOf(state.practiceFilter) !== -1;
+    });
+    if (filtered.length === 0) return;
+    var randomQ = filtered[Math.floor(Math.random() * filtered.length)];
+    var answer = document.getElementById('qa-answer-' + randomQ.id);
+    if (answer) answer.style.display = 'block';
+    var card = document.getElementById('qa-' + randomQ.id);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    var btn = document.querySelector('#qa-' + randomQ.id + ' .qa-toggle');
+    if (btn) btn.textContent = '收起答案';
+    showToast('随机出题: Q' + randomQ.id, 'success');
+  }
+
+  function expandAll() {
+    var allAnswers = document.querySelectorAll('.qa-answer');
+    var allBtns = document.querySelectorAll('.qa-toggle');
+    var allHidden = Array.from(allAnswers).every(function(a) { return a.style.display === 'none'; });
+    allAnswers.forEach(function(a) { a.style.display = allHidden ? 'block' : 'none'; });
+    allBtns.forEach(function(b) { b.textContent = allHidden ? '收起答案' : '查看答案'; });
+    document.getElementById('btn-expand-all').textContent = allHidden ? '全部收起' : '全部展开';
+  }
+
+  function saveSlideMapping() {
+    if (!state.allSlides || state.allSlides.length === 0) return;
+    var mapping = {};
+    Object.keys(state.pptSlides || {}).forEach(function(nodeId) {
+      var urls = state.pptSlides[nodeId];
+      if (urls && urls.length > 0) {
+        mapping[nodeId] = urls.map(function(url) {
+          for (var i = 0; i < state.allSlides.length; i++) {
+            if (state.allSlides[i].url === url) return i;
+          }
+          return -1;
+        }).filter(function(i) { return i >= 0; });
+      }
+    });
+    try { localStorage.setItem('defense-prep-slide-mapping', JSON.stringify(mapping)); } catch(e) {}
+  }
+
+  var assignSelectedNode = null;
+
+  function openAssignPanel() {
+    if (!state.allSlides || state.allSlides.length === 0) {
+      showToast('请先上传 PPT 文件', 'warning');
+      return;
+    }
+    assignSelectedNode = null;
+    renderAssignPanel();
+    document.getElementById('assign-overlay').classList.add('visible');
+    var warning = document.getElementById('assign-warning');
+    if (state.allSlides.length < 3) {
+      warning.textContent = '仅提取到 ' + state.allSlides.length + ' 页。PDF 渲染可能不完整（纯文字或图表）。请确认 PDF 文件完整。';
+      warning.classList.add('visible');
+    } else {
+      warning.classList.remove('visible');
+    }
+  }
+
+  function closeAssignPanel() {
+    document.getElementById('assign-overlay').classList.remove('visible');
+    if (state.selectedStoryNode) renderStoryDetail(state.selectedStoryNode);
+  }
+
+  function renderAssignPanel() {
+    var nodeList = document.getElementById('assign-node-list');
+    if (!nodeList) return;
+    nodeList.innerHTML = state.storyNodes.map(function(node) {
+      var hasSlide = state.pptSlides && state.pptSlides[node.id] && state.pptSlides[node.id].length > 0;
+      var sel = (assignSelectedNode === node.id) ? ' selected' : '';
+      var cls = (hasSlide ? ' assigned' : '') + sel;
+      var count = hasSlide ? state.pptSlides[node.id].length : 0;
+      var status = hasSlide ? '→ ' + count + '个PDF页面' : '未分配';
+      return '<div class="assign-node' + cls + '" data-node-id="' + node.id + '"><div class="node-name">' + node.order + '. ' + node.title + '</div><div class="node-status">' + status + '</div></div>';
+    }).join('');
+    renderSlideGrid();
+  }
+
+  function renderSlideGrid() {
+    var grid = document.getElementById('assign-slide-grid');
+    if (!grid) return;
+    grid.innerHTML = state.allSlides.map(function(slide, i) {
+      var isAssigned = false;
+      if (state.pptSlides) {
+        Object.keys(state.pptSlides).forEach(function(nid) {
+          if (state.pptSlides[nid] && state.pptSlides[nid].indexOf(slide.url) !== -1) isAssigned = true;
+        });
+      }
+      return '<div class="assign-slide' + (isAssigned ? ' assigned' : '') + '" data-slide-index="' + i + '" onclick="window.__assignSlideToNode(' + i + ')" oncontextmenu="window.__removeSlideAssignment(' + i + ', event)"><img src="' + slide.url + '" alt="幻灯片 ' + (i+1) + '"><div class="slide-label">' + slide.pageLabel + '</div></div>';
+    }).join('');
+  }
+
+  // Node list click delegation
+  document.addEventListener('click', function(e) {
+    var nodeEl = e.target.closest('.assign-node');
+    if (!nodeEl) return;
+    assignSelectedNode = nodeEl.dataset.nodeId;
+    renderAssignPanel();
+  });
+
+  function assignSlideToNode(slideIndex) {
+    if (!assignSelectedNode) {
+      showToast('请先在左侧选择一个故事节点', 'warning');
+      return;
+    }
+    if (!state.pptSlides) state.pptSlides = {};
+    if (!state.pptSlides[assignSelectedNode]) state.pptSlides[assignSelectedNode] = [];
+    var slideUrl = state.allSlides[slideIndex].url;
+    if (state.pptSlides[assignSelectedNode].indexOf(slideUrl) === -1) {
+      state.pptSlides[assignSelectedNode].push(slideUrl);
+    }
+    saveSlideMapping();
+    renderAssignPanel();
+  }
+
+  function removeSlideAssignment(slideIndex, event) {
+    if (event) event.preventDefault();
+    var slideUrl = state.allSlides[slideIndex].url;
+    if (state.pptSlides) {
+      Object.keys(state.pptSlides).forEach(function(nid) {
+        state.pptSlides[nid] = state.pptSlides[nid].filter(function(url) { return url !== slideUrl; });
+        if (state.pptSlides[nid].length === 0) delete state.pptSlides[nid];
+      });
+    }
+    saveSlideMapping();
+    renderAssignPanel();
+    showToast('已移除该页面的分配', 'info');
+  }
+
+  // Expose to window for onclick handlers (IIFE scope)
+  window.__openAssignPanel = openAssignPanel;
+  window.__closeAssignPanel = closeAssignPanel;
+  window.__assignSlideToNode = assignSlideToNode;
+  window.__removeSlideAssignment = removeSlideAssignment;
+
+  // Event delegation for dynamically created elements
+  document.addEventListener('click', function(e) {
+    // Practice filter buttons
+    if (e.target.classList.contains('practice-filter')) {
+      document.querySelectorAll('.practice-filter').forEach(function(b) {
+        b.style.background = 'var(--card)'; b.style.color = 'var(--text-dim)'; b.classList.remove('active');
+      });
+      e.target.style.background = 'var(--accent)';
+      e.target.style.color = '#fff';
+      e.target.classList.add('active');
+      renderPracticeList(e.target.dataset.filter);
+    }
+    // Q&A toggle buttons
+    if (e.target.classList.contains('qa-toggle')) {
+      var qaId = parseInt(e.target.dataset.id);
+      if (qaId) toggleAnswer(qaId, e.target);
+    }
+    // Q&A jump cards (from learn panel)
+    if (e.target.closest('.qa-jump-card')) {
+      var card = e.target.closest('.qa-jump-card');
+      var qaId = parseInt(card.dataset.qaid);
+      if (qaId) switchToPractice(qaId);
+    }
+    // Search result: jump to QA
+    if (e.target.closest('[data-search-qa]')) {
+      var el = e.target.closest('[data-search-qa]');
+      jumpToQA(parseInt(el.dataset.searchQa));
+    }
+    // Search result: jump to learn
+    if (e.target.closest('[data-search-learn]')) {
+      var el = e.target.closest('[data-search-learn]');
+      jumpToLearn(el.dataset.searchLearn);
+    }
+    // Random question & expand all
+    if (e.target.id === 'btn-random') { randomQuestion(); }
+    if (e.target.id === 'btn-expand-all') { expandAll(); }
+  });
+
+  /* ─── Kick-off data loading ─── */
+  loadData();
+
+})();
+</script>
+
+<!-- ════════════════════════════════════════════ -->
+<!--  Tailwind CDN offline fallback               -->
+<!-- ════════════════════════════════════════════ -->
+<script>
+(function() {
+  var TAILWIND_TIMEOUT = 5000;
+  var fallbackApplied  = false;
+  var startTime        = Date.now();
+
+  function applyFallbackCSS() {
+    if (fallbackApplied) return;
+    fallbackApplied = true;
+
+    var style = document.createElement('style');
+    style.id = 'tailwind-fallback';
+    style.textContent =
+      '/* Tailwind offline fallback — minimal reset + utilities */' +
+      'html{line-height:1.5;-webkit-text-size-adjust:100%;}' +
+      'body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#FAFAF9;color:#1C1917;}' +
+      'h1,h2,h3,h4,h5,h6{font-family:Figtree,system-ui,sans-serif;}' +
+      '*,::before,::after{box-sizing:border-box;}' +
+      'img,svg,video{max-width:100%;height:auto;}' +
+      '.text-brand{color:#0891B2;}' +
+      '.bg-brand{background-color:#0891B2;}' +
+      '.bg-brand-50{background-color:#ECFEFF;}' +
+      '.font-heading{font-family:Figtree,system-ui,sans-serif;}' +
+      '.font-body{font-family:system-ui,sans-serif;}';
+    document.head.appendChild(style);
+    console.warn('[天玑识骨] Tailwind CDN 加载超时，已注入最小内联回退样式。');
+  }
+
+  // Check if Tailwind loaded (looks for its injected stylesheet)
+  function checkTailwindLoaded() {
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      try {
+        if (sheets[i].href && sheets[i].href.indexOf('tailwind') !== -1) {
+          return true;
+        }
+        // Also check if tailwind config is in a known-loaded state
+        if (sheets[i].cssRules) {
+          for (var j = 0; j < sheets[i].cssRules.length; j++) {
+            if (sheets[i].cssRules[j].selectorText &&
+                sheets[i].cssRules[j].selectorText.indexOf('.flex') !== -1) {
+              return true;
+            }
+          }
+        }
+      } catch(e) { /* cross-origin stylesheet, continue */ }
+    }
+    // Alternative check: see if a Tailwind class actually applies
+    var testEl = document.createElement('div');
+    testEl.style.display = 'none';
+    testEl.className = 'flex';
+    document.body.appendChild(testEl);
+    var computed = window.getComputedStyle(testEl);
+    var isFlex = computed.display === 'flex';
+    document.body.removeChild(testEl);
+    return isFlex;
+  }
+
+  // Schedule fallback
+  setTimeout(function() {
+    if (!checkTailwindLoaded()) {
+      applyFallbackCSS();
+    }
+  }, TAILWIND_TIMEOUT);
+
+  // Also listen for the DOM to be fully settled; if still not loaded, apply
+  window.addEventListener('load', function() {
+    var elapsed = Date.now() - startTime;
+    if (!fallbackApplied && elapsed >= TAILWIND_TIMEOUT && !checkTailwindLoaded()) {
+      applyFallbackCSS();
+    }
+  });
+})();
+</script>
+
+<!-- Slide Assignment Overlay -->
+<div class="assign-overlay" id="assign-overlay">
+  <div class="assign-panel">
+    <div class="assign-header">
+      <h3>PDF 页面分配</h3>
+      <button class="assign-close" onclick="window.__closeAssignPanel()" aria-label="关闭">&times;</button>
+    </div>
+    <div class="assign-warning" id="assign-warning"></div>
+    <div class="assign-body">
+      <div class="assign-left" id="assign-node-list"></div>
+      <div class="assign-right">
+        <div class="assign-grid" id="assign-slide-grid"></div>
+      </div>
+    </div>
+    <div class="assign-footer">
+      <span>点击左侧节点选中，再点击右侧缩略图关联。右键缩略图可移除分配。</span>
+      <button onclick="window.__closeAssignPanel()" style="padding:0.4rem 1.2rem;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.82rem;">完成分配</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
