@@ -1376,6 +1376,33 @@ h1, h2, h3, h4, h5, h6 {
   /* ─── Kick-off data loading ─── */
   loadData();
 
+
+  // ═══════════════ Glossary Panel ═══════════════
+  function renderGlossaryList(filter) {
+    filter = filter || state.glossaryFilter || 'all';
+    var container = document.getElementById('glossary-list');
+    if (!container) return;
+    var filtered = state.glossary.filter(function(t) { return filter === 'all' || t.category === filter; });
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">该分类暂无术语</div>';
+      return;
+    }
+    container.innerHTML = filtered.map(function(t) {
+      return '<div class="card" style="padding:1rem 1.2rem;margin-bottom:0.6rem;">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">' +
+          '<div>' +
+            '<div style="font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.3rem;">' + t.term + '</div>' +
+            '<span style="font-size:0.65rem;padding:0.1rem 0.5rem;border-radius:8px;background:var(--accent-light);color:var(--accent);">' + t.category + '</span>' +
+          '</div>' +
+          '<button class="glossary-toggle" data-id="' + t.id + '" style="flex-shrink:0;padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--accent);font-size:0.72rem;cursor:pointer;font-family:inherit;white-space:nowrap;">点我理解</button>' +
+        '</div>' +
+        '<div style="font-size:0.85rem;line-height:1.8;color:var(--text);margin-top:0.6rem;">' + t.standard + '</div>' +
+        '<div class="glossary-simple" id="glossary-simple-' + t.id + '" style="display:none;margin-top:0.6rem;padding:0.7rem 0.9rem;background:#F0FDF4;border-radius:8px;border-left:3px solid #22C55E;font-size:0.83rem;line-height:1.8;color:#166534;">' + t.simple + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+
 })();
 </script>
 
@@ -1454,32 +1481,6 @@ h1, h2, h3, h4, h5, h6 {
       applyFallbackCSS();
     }
   });
-
-
-  // ═══════════════ Glossary Panel ═══════════════
-  function renderGlossaryList(filter) {
-    filter = filter || state.glossaryFilter || 'all';
-    var container = document.getElementById('glossary-list');
-    if (!container) return;
-    var filtered = state.glossary.filter(function(t) { return filter === 'all' || t.category === filter; });
-    if (filtered.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">该分类暂无术语</div>';
-      return;
-    }
-    container.innerHTML = filtered.map(function(t) {
-      return '<div class="card" style="padding:1rem 1.2rem;margin-bottom:0.6rem;">' +
-        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">' +
-          '<div>' +
-            '<div style="font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.3rem;">' + t.term + '</div>' +
-            '<span style="font-size:0.65rem;padding:0.1rem 0.5rem;border-radius:8px;background:var(--accent-light);color:var(--accent);">' + t.category + '</span>' +
-          '</div>' +
-          '<button class="glossary-toggle" data-id="' + t.id + '" style="flex-shrink:0;padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--accent);font-size:0.72rem;cursor:pointer;font-family:inherit;white-space:nowrap;">点我理解</button>' +
-        '</div>' +
-        '<div style="font-size:0.85rem;line-height:1.8;color:var(--text);margin-top:0.6rem;">' + t.standard + '</div>' +
-        '<div class="glossary-simple" id="glossary-simple-' + t.id + '" style="display:none;margin-top:0.6rem;padding:0.7rem 0.9rem;background:#F0FDF4;border-radius:8px;border-left:3px solid #22C55E;font-size:0.83rem;line-height:1.8;color:#166534;">' + t.simple + '</div>' +
-      '</div>';
-    }).join('');
-  }
 
 })();
 </script>
