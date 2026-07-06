@@ -1478,6 +1478,34 @@ h1, h2, h3, h4, h5, h6 {
   }
 
 
+
+  // ═══════════════ Pressure Q&A ═══════════════
+  function renderPressureList() {
+    var container = document.getElementById('qa-list');
+    if (!container) return;
+    if (state.pressureQa.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">压力题加载中...</div>';
+      return;
+    }
+    container.innerHTML = state.pressureQa.map(function(q) {
+      return '<div class="card" style="padding:1rem 1.2rem;margin-bottom:0.6rem;border-left:3px solid #EF4444;">' +
+        '<div style="font-size:0.85rem;font-weight:600;color:#991B1B;margin-bottom:0.4rem;">' + q.question + '</div>' +
+        '<span style="font-size:0.65rem;padding:0.1rem 0.5rem;border-radius:8px;background:#FEF2F2;color:#EF4444;">压力题</span>' +
+        '<button class="qa-toggle pressure-toggle" data-id="' + q.id + '" style="float:right;padding:0.3rem 0.7rem;border:1px solid #FCA5A5;border-radius:6px;background:#fff;color:#EF4444;font-size:0.72rem;cursor:pointer;font-family:inherit;">查看应对</button>' +
+        '<div class="qa-answer pressure-answer" id="qa-answer-' + q.id + '" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid #FEE2E2;font-size:0.85rem;line-height:1.8;color:var(--text);">' +
+          q.answer +
+          '<div style="margin-top:0.75rem;padding:0.7rem 0.9rem;background:#FFF7ED;border-radius:8px;border-left:3px solid #EA580C;">' +
+            '<div style="font-size:0.75rem;font-weight:600;color:#9A3412;margin-bottom:0.3rem;">🔥 评委追问</div>' +
+            '<div style="font-size:0.8rem;color:#9A3412;margin-bottom:0.5rem;">' + q.followUp + '</div>' +
+            '<button class="pressure-followup-toggle" data-id="' + q.id + '" style="padding:0.25rem 0.6rem;border:1px solid #FDBA74;border-radius:4px;background:#fff;color:#EA580C;font-size:0.7rem;cursor:pointer;font-family:inherit;">点击查看追问的回答</button>' +
+            '<div class="pressure-followup" id="pressure-followup-' + q.id + '" style="display:none;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #FDBA74;font-size:0.82rem;line-height:1.8;color:var(--text);">' + q.followUpAnswer + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+
 })();
 </script>
 
@@ -1558,44 +1586,8 @@ h1, h2, h3, h4, h5, h6 {
   });
 
 
-
-  // ═══════════════ Pressure Q&A ═══════════════
-  function renderPressureList() {
-    var container = document.getElementById('qa-list');
-    if (!container) return;
-    if (state.pressureQa.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">压力题加载中...</div>';
-      return;
-    }
-    container.innerHTML = state.pressureQa.map(function(q) {
-      return '<div class="card" style="padding:1rem 1.2rem;margin-bottom:0.6rem;border-left:3px solid #EF4444;">' +
-        '<div style="font-size:0.85rem;font-weight:600;color:#991B1B;margin-bottom:0.4rem;">' + q.question + '</div>' +
-        '<span style="font-size:0.65rem;padding:0.1rem 0.5rem;border-radius:8px;background:#FEF2F2;color:#EF4444;">压力题</span>' +
-        '<button class="qa-toggle pressure-toggle" data-id="' + q.id + '" style="float:right;padding:0.3rem 0.7rem;border:1px solid #FCA5A5;border-radius:6px;background:#fff;color:#EF4444;font-size:0.72rem;cursor:pointer;font-family:inherit;">查看应对</button>' +
-        '<div class="qa-answer pressure-answer" id="qa-answer-' + q.id + '" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid #FEE2E2;font-size:0.85rem;line-height:1.8;color:var(--text);">' +
-          q.answer +
-          '<div style="margin-top:0.75rem;padding:0.7rem 0.9rem;background:#FFF7ED;border-radius:8px;border-left:3px solid #EA580C;">' +
-            '<div style="font-size:0.75rem;font-weight:600;color:#9A3412;margin-bottom:0.3rem;">🔥 评委追问</div>' +
-            '<div style="font-size:0.8rem;color:#9A3412;margin-bottom:0.5rem;">' + q.followUp + '</div>' +
-            '<button class="pressure-followup-toggle" data-id="' + q.id + '" style="padding:0.25rem 0.6rem;border:1px solid #FDBA74;border-radius:4px;background:#fff;color:#EA580C;font-size:0.7rem;cursor:pointer;font-family:inherit;">点击查看追问的回答</button>' +
-            '<div class="pressure-followup" id="pressure-followup-' + q.id + '" style="display:none;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #FDBA74;font-size:0.82rem;line-height:1.8;color:var(--text);">' + q.followUpAnswer + '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-  }
-
   // Also render regular list when filter is all (show everything)
-  var _origRenderPracticeList = renderPracticeList;
-  renderPracticeList = function(filter) {
-    filter = filter || 'all';
-    state.practiceFilter = filter;
-    if (filter === '压力') {
-      renderPressureList();
-      return;
-    }
-    _origRenderPracticeList(filter);
-  };
+
 
 })();
 </script>
