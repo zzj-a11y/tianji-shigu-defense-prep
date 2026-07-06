@@ -1109,13 +1109,28 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     // Related Q&A
+    var relatedPressures = state.pressureQa.filter(function(q) { return node.pressureIds && node.pressureIds.indexOf(q.id) !== -1; });
+
+    // Regular Q&A
     if (relatedQAs.length > 0) {
       html += '<div style="margin-bottom:1rem;">';
-      html += '<div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">评委可能问 (' + relatedQAs.length + '题)</div>';
+      html += '<div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">评委可能问 - 常规提问 (' + relatedQAs.length + '题)</div>';
       relatedQAs.forEach(function(q) {
         html += '<div class="card qa-jump-card" style="padding:0.7rem 0.9rem;margin-bottom:0.4rem;cursor:pointer;" data-qaid="' + q.id + '">';
         html += '<div style="font-size:0.82rem;color:var(--text);">' + q.question + '</div>';
         html += '<div style="font-size:0.68rem;color:var(--text-dim);margin-top:0.2rem;">点击跳转到「练」板块查看答案</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    // Pressure Q&A
+    if (relatedPressures.length > 0) {
+      html += '<div style="margin-bottom:1rem;">';
+      html += '<div style="font-size:0.85rem;font-weight:600;color:#991B1B;margin-bottom:0.5rem;">🔥 评委压力追问 (' + relatedPressures.length + '题)</div>';
+      relatedPressures.forEach(function(q) {
+        html += '<div class="card" style="padding:0.7rem 0.9rem;margin-bottom:0.4rem;cursor:pointer;border-left:3px solid #EF4444;" onclick="(function(){document.querySelectorAll(\".nav-tab\").forEach(function(t){t.classList.remove(\"active\");t.setAttribute(\"aria-selected\",\"false\")});document.getElementById(\"tab-practice\").classList.add(\"active\");document.getElementById(\"tab-practice\").setAttribute(\"aria-selected\",\"true\");document.querySelectorAll(\".tab-panel\").forEach(function(p){p.classList.remove(\"active\")});document.getElementById(\"panel-practice\").classList.add(\"active\");state.activeTab=\"practice\";setTimeout(function(){var f=document.querySelector(\".practice-filter[data-filter=压力]\");if(f)f.click()},200)})()">';
+        html += '<div style="font-size:0.82rem;color:#991B1B;">' + q.question + '</div>';
+        html += '<div style="font-size:0.68rem;color:var(--text-dim);margin-top:0.2rem;">点击跳转到「练」板块压力区查看答案</div>';
         html += '</div>';
       });
       html += '</div>';
