@@ -1128,7 +1128,7 @@ h1, h2, h3, h4, h5, h6 {
       html += '<div style="margin-bottom:1rem;">';
       html += '<div style="font-size:0.85rem;font-weight:600;color:#991B1B;margin-bottom:0.5rem;">🔥 评委压力追问 (' + relatedPressures.length + '题)</div>';
       relatedPressures.forEach(function(q) {
-        html += '<div class="card" style="padding:0.7rem 0.9rem;margin-bottom:0.4rem;cursor:pointer;border-left:3px solid #EF4444;" onclick="(function(){document.querySelectorAll(\".nav-tab\").forEach(function(t){t.classList.remove(\"active\");t.setAttribute(\"aria-selected\",\"false\")});document.getElementById(\"tab-practice\").classList.add(\"active\");document.getElementById(\"tab-practice\").setAttribute(\"aria-selected\",\"true\");document.querySelectorAll(\".tab-panel\").forEach(function(p){p.classList.remove(\"active\")});document.getElementById(\"panel-practice\").classList.add(\"active\");state.activeTab=\"practice\";setTimeout(function(){var f=document.querySelector(\".practice-filter[data-filter=压力]\");if(f)f.click()},200)})()">';
+        html += '<div class="card pressure-jump-card" style="padding:0.7rem 0.9rem;margin-bottom:0.4rem;cursor:pointer;border-left:3px solid #EF4444;" data-pressure-jump="' + q.id + '">';
         html += '<div style="font-size:0.82rem;color:#991B1B;">' + q.question + '</div>';
         html += '<div style="font-size:0.68rem;color:var(--text-dim);margin-top:0.2rem;">点击跳转到「练」板块压力区查看答案</div>';
         html += '</div>';
@@ -1397,6 +1397,24 @@ h1, h2, h3, h4, h5, h6 {
       var card = e.target.closest('.qa-jump-card');
       var qaId = parseInt(card.dataset.qaid);
       if (qaId) switchToPractice(qaId);
+    }
+    // Pressure jump cards (from learn panel story detail)
+    if (e.target.closest('.pressure-jump-card')) {
+      var pressureCard = e.target.closest('.pressure-jump-card');
+      var qId = pressureCard.dataset.pressureJump;
+      switchTab('practice');
+      setTimeout(function() {
+        var pressureFilter = document.querySelector('.practice-filter[data-filter="压力"]');
+        if (pressureFilter) pressureFilter.click();
+        if (qId) {
+          setTimeout(function() {
+            var el = document.getElementById('qa-answer-' + qId);
+            if (el) el.style.display = 'block';
+            var qaCard = document.getElementById('qa-' + qId);
+            if (qaCard) qaCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        }
+      }, 100);
     }
     // Search result: jump to QA
     if (e.target.closest('[data-search-qa]')) {
