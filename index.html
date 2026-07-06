@@ -920,13 +920,13 @@ h1, h2, h3, h4, h5, h6 {
   async function loadData() {
     let loaded = 0;
     try {
-      const r = await fetch('story-nodes.json');
+      const r = await fetch('story-nodes.json?v=2');
       state.storyNodes = await r.json();
       showToast('已加载学习节点 (' + state.storyNodes.length + '个)', 'success');
       renderStoryMap();
     } catch(e) { showToast('故事节点加载失败: ' + e.message, 'error'); }
     try {
-      const r = await fetch('qa-items.json');
+      const r = await fetch('qa-items.json?v=2');
       state.qaItems = await r.json();
       showToast('已加载Q&A (' + state.qaItems.length + '题)', 'success');
       renderPracticeList();
@@ -942,15 +942,15 @@ h1, h2, h3, h4, h5, h6 {
 
     // Auto-load default PDF (render in background after UI is ready)
     autoLoadPDF();
-    try { var r = await fetch('glossary.json'); state.glossary = await r.json(); renderGlossaryList(); } catch(e) {}
-    try { var pr = await fetch('pressure-qa.json'); state.pressureQa = await pr.json(); } catch(e) {}
+    try { var r = await fetch('glossary.json?v=2'); state.glossary = await r.json(); renderGlossaryList(); } catch(e) {}
+    try { var pr = await fetch('pressure-qa.json?v=2'); state.pressureQa = await pr.json(); } catch(e) {}
   }
 
   function autoLoadPDF() {
     var BATCH_SIZE = 3;
     var SCALE = 0.5; // thumbnail resolution is enough for the picker
     pptStatus.textContent = '正在加载默认 PDF...';
-    fetch('default.pdf').then(function(resp) {
+    fetch('default.pdf?v=2').then(function(resp) {
       if (!resp.ok) throw new Error('default.pdf not found');
       return resp.arrayBuffer();
     }).then(function(arrayBuffer) {
@@ -1208,7 +1208,12 @@ h1, h2, h3, h4, h5, h6 {
     if (!answer) return;
     var isHidden = answer.style.display === 'none';
     answer.style.display = isHidden ? 'block' : 'none';
-    if (btn) btn.textContent = isHidden ? '收起答案' : '查看答案';
+    if (btn) {
+      var isPressure = btn.classList.contains('pressure-toggle');
+      btn.textContent = isHidden
+        ? (isPressure ? '收起应对' : '收起答案')
+        : (isPressure ? '查看应对' : '查看答案');
+    }
   }
 
   function randomQuestion() {
@@ -1229,9 +1234,17 @@ h1, h2, h3, h4, h5, h6 {
   function expandAll() {
     var allAnswers = document.querySelectorAll('.qa-answer');
     var allBtns = document.querySelectorAll('.qa-toggle');
-    var allHidden = Array.from(allAnswers).every(function(a) { return a.style.display === 'none'; });
+    var allHidden = true;
+    for (var i = 0; i < allAnswers.length; i++) {
+      if (allAnswers[i].style.display !== 'none') { allHidden = false; break; }
+    }
     allAnswers.forEach(function(a) { a.style.display = allHidden ? 'block' : 'none'; });
-    allBtns.forEach(function(b) { b.textContent = allHidden ? '收起答案' : '查看答案'; });
+    allBtns.forEach(function(b) {
+      var isPressure = b.classList.contains('pressure-toggle');
+      b.textContent = allHidden
+        ? (isPressure ? '收起应对' : '收起答案')
+        : (isPressure ? '查看应对' : '查看答案');
+    });
     document.getElementById('btn-expand-all').textContent = allHidden ? '全部收起' : '全部展开';
   }
 
@@ -1361,7 +1374,7 @@ h1, h2, h3, h4, h5, h6 {
     }
     // Q&A toggle buttons
     if (e.target.classList.contains('qa-toggle')) {
-      var qaId = parseInt(e.target.dataset.id);
+      var qaId = e.target.dataset.id;
       if (qaId) toggleAnswer(qaId, e.target);
     }
     // Q&A jump cards (from learn panel)
