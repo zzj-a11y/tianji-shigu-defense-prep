@@ -1402,19 +1402,29 @@ h1, h2, h3, h4, h5, h6 {
     if (e.target.closest('.pressure-jump-card')) {
       var pressureCard = e.target.closest('.pressure-jump-card');
       var qId = pressureCard.dataset.pressureJump;
-      switchTab('practice');
+      // Switch to practice tab
+      document.querySelectorAll('.nav-tab[role="tab"]').forEach(function(btn) {
+        var isActive = btn.getAttribute('data-tab') === 'practice';
+        btn.setAttribute('aria-selected', String(isActive));
+        btn.classList.toggle('active', isActive);
+      });
+      document.querySelectorAll('.tab-panel[role="tabpanel"]').forEach(function(p) {
+        p.classList.remove('active', 'fade-in');
+        if (p.id === 'panel-practice') p.classList.add('active', 'fade-in');
+      });
+      // Wait for DOM update then click pressure filter
       setTimeout(function() {
-        var pressureFilter = document.querySelector('.practice-filter[data-filter="压力"]');
-        if (pressureFilter) pressureFilter.click();
+        var pf = document.querySelector('.practice-filter[data-filter="压力"]');
+        if (pf) pf.click();
         if (qId) {
           setTimeout(function() {
             var el = document.getElementById('qa-answer-' + qId);
             if (el) el.style.display = 'block';
             var qaCard = document.getElementById('qa-' + qId);
             if (qaCard) qaCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 300);
+          }, 350);
         }
-      }, 100);
+      }, 150);
     }
     // Search result: jump to QA
     if (e.target.closest('[data-search-qa]')) {
