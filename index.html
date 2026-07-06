@@ -459,6 +459,13 @@ h1, h2, h3, h4, h5, h6 {
             data-tab="search">
       <span aria-hidden="true">🔍</span> 查
     </button>
+    <button class="nav-tab" role="tab"
+            id="tab-glossary"
+            aria-selected="false"
+            aria-controls="panel-glossary"
+            data-tab="glossary">
+      <span aria-hidden="true">📖</span> 词
+    </button>
   </div>
 
   <div class="nav-right">
@@ -529,6 +536,23 @@ h1, h2, h3, h4, h5, h6 {
     </div>
     <div id="search-results" style="font-size:0.85rem;color:var(--text-dim);">输入至少两个字符开始搜索</div>
   </div>
+
+<section class="tab-panel" id="panel-glossary"
+         role="tabpanel" aria-labelledby="tab-glossary" tabindex="0">
+  <div style="max-width:860px;margin:0 auto;padding:1.5rem 2rem;width:100%;">
+    <div style="margin-bottom:1rem;">
+      <input type="text" id="glossary-search" placeholder="搜索术语，比如 GAN、F1、过拟合..." style="width:100%;padding:0.7rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:inherit;outline:none;color:var(--text);background:var(--card);">
+    </div>
+    <div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:1rem;" id="glossary-filters">
+      <button class="glossary-filter active" data-filter="all" style="padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:14px;background:var(--accent);color:#fff;font-size:0.75rem;cursor:pointer;font-family:inherit;">全部</button>
+      <button class="glossary-filter" data-filter="AI模型" style="padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text-dim);font-size:0.75rem;cursor:pointer;font-family:inherit;">AI模型</button>
+      <button class="glossary-filter" data-filter="评价指标" style="padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text-dim);font-size:0.75rem;cursor:pointer;font-family:inherit;">评价指标</button>
+      <button class="glossary-filter" data-filter="图像处理" style="padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text-dim);font-size:0.75rem;cursor:pointer;font-family:inherit;">图像处理</button>
+      <button class="glossary-filter" data-filter="临床" style="padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text-dim);font-size:0.75rem;cursor:pointer;font-family:inherit;">临床</button>
+    </div>
+    <div id="glossary-list"><div style="color:var(--text-dim);text-align:center;padding:2rem;">加载中...</div></div>
+  </div>
+</section>
 </section>
 
 <!-- ════════════════════════════════════════════ -->
@@ -911,7 +935,7 @@ h1, h2, h3, h4, h5, h6 {
 
     // Auto-load default PDF (render in background after UI is ready)
     autoLoadPDF();
-
+    try { var r = await fetch('glossary.json'); state.glossary = await r.json(); renderGlossaryList(); } catch(e) {}
   }
 
   function autoLoadPDF() {
@@ -1430,6 +1454,33 @@ h1, h2, h3, h4, h5, h6 {
       applyFallbackCSS();
     }
   });
+
+
+  // ═══════════════ Glossary Panel ═══════════════
+  function renderGlossaryList(filter) {
+    filter = filter || state.glossaryFilter || 'all';
+    var container = document.getElementById('glossary-list');
+    if (!container) return;
+    var filtered = state.glossary.filter(function(t) { return filter === 'all' || t.category === filter; });
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">该分类暂无术语</div>';
+      return;
+    }
+    container.innerHTML = filtered.map(function(t) {
+      return '<div class="card" style="padding:1rem 1.2rem;margin-bottom:0.6rem;">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">' +
+          '<div>' +
+            '<div style="font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.3rem;">' + t.term + '</div>' +
+            '<span style="font-size:0.65rem;padding:0.1rem 0.5rem;border-radius:8px;background:var(--accent-light);color:var(--accent);">' + t.category + '</span>' +
+          '</div>' +
+          '<button class="glossary-toggle" data-id="' + t.id + '" style="flex-shrink:0;padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--accent);font-size:0.72rem;cursor:pointer;font-family:inherit;white-space:nowrap;">点我理解</button>' +
+        '</div>' +
+        '<div style="font-size:0.85rem;line-height:1.8;color:var(--text);margin-top:0.6rem;">' + t.standard + '</div>' +
+        '<div class="glossary-simple" id="glossary-simple-' + t.id + '" style="display:none;margin-top:0.6rem;padding:0.7rem 0.9rem;background:#F0FDF4;border-radius:8px;border-left:3px solid #22C55E;font-size:0.83rem;line-height:1.8;color:#166534;">' + t.simple + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
 })();
 </script>
 
