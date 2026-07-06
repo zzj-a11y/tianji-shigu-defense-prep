@@ -517,6 +517,7 @@ h1, h2, h3, h4, h5, h6 {
       <button class="practice-filter" data-filter="技术" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">技术</button>
       <button class="practice-filter" data-filter="临床" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">临床</button>
       <button class="practice-filter" data-filter="创新" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">创新</button>
+      <button class="practice-filter" data-filter="压力" style="padding:0.35rem 0.8rem;border:1px solid #EF4444;border-radius:16px;background:var(--card);color:#EF4444;font-size:0.78rem;cursor:pointer;font-family:inherit;">🔥 压力</button>
       <button class="practice-filter" data-filter="商业" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">商业</button>
       <button id="btn-random" style="margin-left:auto;padding:0.35rem 0.8rem;border:1px solid var(--accent);border-radius:16px;background:var(--card);color:var(--accent);font-size:0.78rem;cursor:pointer;font-family:inherit;">随机出题</button>
       <button id="btn-expand-all" style="padding:0.35rem 0.8rem;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:inherit;">全部展开</button>
@@ -584,6 +585,7 @@ h1, h2, h3, h4, h5, h6 {
     selectedStoryNode: null,
     practiceFilter: 'all',
     glossaryFilter: 'all',
+    pressureQa: [],
     practiceMode: 'browse'
   };
 
@@ -941,6 +943,7 @@ h1, h2, h3, h4, h5, h6 {
     // Auto-load default PDF (render in background after UI is ready)
     autoLoadPDF();
     try { var r = await fetch('glossary.json'); state.glossary = await r.json(); renderGlossaryList(); } catch(e) {}
+    try { var pr = await fetch('pressure-qa.json'); state.pressureQa = await pr.json(); } catch(e) {}
   }
 
   function autoLoadPDF() {
@@ -1175,6 +1178,10 @@ h1, h2, h3, h4, h5, h6 {
     state.practiceFilter = filter;
     var container = document.getElementById('qa-list');
     if (!container) return;
+    if (filter === '压力') {
+      renderPressureList();
+      return;
+    }
     var filtered = state.qaItems.filter(function(q) { return filter === 'all' || q.tags.indexOf(filter) !== -1; });
     if (filtered.length === 0) {
       container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">该分类暂无题目</div>';
@@ -1385,6 +1392,17 @@ h1, h2, h3, h4, h5, h6 {
       renderGlossaryList(e.target.dataset.filter);
     }
     // Glossary toggle (通俗理解)
+    // Pressure toggle
+    if (e.target.classList.contains('pressure-followup-toggle')) {
+      var pfid = e.target.dataset.id;
+      var pfel = document.getElementById('pressure-followup-' + pfid);
+      if (pfel) {
+        var pfhidden = pfel.style.display === 'none';
+        pfel.style.display = pfhidden ? 'block' : 'none';
+        e.target.textContent = pfhidden ? '收起追问回答' : '点击查看追问的回答';
+      }
+    }
+    // Glossary toggle
     if (e.target.classList.contains('glossary-toggle')) {
       var gid = e.target.dataset.id;
       var el = document.getElementById('glossary-simple-' + gid);
@@ -1538,6 +1556,46 @@ h1, h2, h3, h4, h5, h6 {
       applyFallbackCSS();
     }
   });
+
+
+
+  // ═══════════════ Pressure Q&A ═══════════════
+  function renderPressureList() {
+    var container = document.getElementById('qa-list');
+    if (!container) return;
+    if (state.pressureQa.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">压力题加载中...</div>';
+      return;
+    }
+    container.innerHTML = state.pressureQa.map(function(q) {
+      return '<div class="card" style="padding:1rem 1.2rem;margin-bottom:0.6rem;border-left:3px solid #EF4444;">' +
+        '<div style="font-size:0.85rem;font-weight:600;color:#991B1B;margin-bottom:0.4rem;">' + q.question + '</div>' +
+        '<span style="font-size:0.65rem;padding:0.1rem 0.5rem;border-radius:8px;background:#FEF2F2;color:#EF4444;">压力题</span>' +
+        '<button class="qa-toggle pressure-toggle" data-id="' + q.id + '" style="float:right;padding:0.3rem 0.7rem;border:1px solid #FCA5A5;border-radius:6px;background:#fff;color:#EF4444;font-size:0.72rem;cursor:pointer;font-family:inherit;">查看应对</button>' +
+        '<div class="qa-answer pressure-answer" id="qa-answer-' + q.id + '" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid #FEE2E2;font-size:0.85rem;line-height:1.8;color:var(--text);">' +
+          q.answer +
+          '<div style="margin-top:0.75rem;padding:0.7rem 0.9rem;background:#FFF7ED;border-radius:8px;border-left:3px solid #EA580C;">' +
+            '<div style="font-size:0.75rem;font-weight:600;color:#9A3412;margin-bottom:0.3rem;">🔥 评委追问</div>' +
+            '<div style="font-size:0.8rem;color:#9A3412;margin-bottom:0.5rem;">' + q.followUp + '</div>' +
+            '<button class="pressure-followup-toggle" data-id="' + q.id + '" style="padding:0.25rem 0.6rem;border:1px solid #FDBA74;border-radius:4px;background:#fff;color:#EA580C;font-size:0.7rem;cursor:pointer;font-family:inherit;">点击查看追问的回答</button>' +
+            '<div class="pressure-followup" id="pressure-followup-' + q.id + '" style="display:none;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #FDBA74;font-size:0.82rem;line-height:1.8;color:var(--text);">' + q.followUpAnswer + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Also render regular list when filter is all (show everything)
+  var _origRenderPracticeList = renderPracticeList;
+  renderPracticeList = function(filter) {
+    filter = filter || 'all';
+    state.practiceFilter = filter;
+    if (filter === '压力') {
+      renderPressureList();
+      return;
+    }
+    _origRenderPracticeList(filter);
+  };
 
 })();
 </script>
