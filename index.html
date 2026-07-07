@@ -1328,7 +1328,7 @@ h1, h2, h3, h4, h5, h6 {
           if (state.pptSlides[nid] && state.pptSlides[nid].indexOf(slide.url) !== -1) isAssigned = true;
         });
       }
-      return '<div class="assign-slide' + (isAssigned ? ' assigned' : '') + '" data-slide-index="' + i + '" onclick="window.__assignSlideToNode(' + i + ')" oncontextmenu="window.__removeSlideAssignment(' + i + ', event)"><button class="assign-cancel" onclick="event.stopPropagation();window.__removeSlideAssignment(i)" title="cancel">x</button><img src="' + slide.url + '" alt="幻灯片 ' + (i+1) + '"><div class="slide-label">' + slide.pageLabel + '</div></div>';
+      return '<div class="assign-slide' + (isAssigned ? ' assigned' : '') + '" data-slide-index="' + i + '" onclick="window.__assignSlideToNode(' + i + ')" oncontextmenu="window.__removeSlideAssignment(' + i + ', event)"><button class="assign-cancel" onclick="event.stopPropagation();window.__removeSlideAssignment(' + i + ')" title="cancel">x</button><img src="' + slide.url + '" alt="幻灯片 ' + (i+1) + '"><div class="slide-label">' + slide.pageLabel + '</div></div>';
     }).join('');
   }
 
