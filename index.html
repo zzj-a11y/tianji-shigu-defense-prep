@@ -421,7 +421,7 @@ h1, h2, h3, h4, h5, h6 {
 .assign-slide { aspect-ratio: 16/9; border-radius: 6px; border: 2px solid var(--border); cursor: pointer; position: relative; overflow: hidden; background: #f5f5f5; transition: all 0.12s; }
 .assign-slide:hover { border-color: #94a3b8; transform: translateY(-1px); }
 .assign-slide.assigned { border-color: #22C55E; }
-.assign-slide.assigned::after { content: '已用'; position: absolute; top: 4px; right: 4px; background: #22C55E; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 3px; z-index: 2; }
+.assign-slide .assign-cancel { display: none; position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: #EF4444; color: #fff; border: none; border-radius: 50%; font-size: 14px; line-height: 22px; text-align: center; cursor: pointer; z-index: 3; padding: 0; font-family: inherit; }.assign-slide.assigned .assign-cancel { display: block; }.assign-slide.assigned .assign-cancel:hover { background: #DC2626; transform: scale(1.1); }
 .assign-slide img { width: 100%; height: 100%; object-fit: cover; }
 .assign-slide .slide-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); color: #fff; font-size: 9px; padding: 2px 6px; text-align: center; z-index: 2; }
 .assign-footer { padding: 0.5rem 1rem; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
@@ -1328,7 +1328,7 @@ h1, h2, h3, h4, h5, h6 {
           if (state.pptSlides[nid] && state.pptSlides[nid].indexOf(slide.url) !== -1) isAssigned = true;
         });
       }
-      return '<div class="assign-slide' + (isAssigned ? ' assigned' : '') + '" data-slide-index="' + i + '" onclick="window.__assignSlideToNode(' + i + ')" oncontextmenu="window.__removeSlideAssignment(' + i + ', event)"><img src="' + slide.url + '" alt="幻灯片 ' + (i+1) + '"><div class="slide-label">' + slide.pageLabel + '</div></div>';
+      return '<div class="assign-slide' + (isAssigned ? ' assigned' : '') + '" data-slide-index="' + i + '" onclick="window.__assignSlideToNode(' + i + ')" oncontextmenu="window.__removeSlideAssignment(' + i + ', event)"><button class="assign-cancel" onclick="event.stopPropagation();window.__removeSlideAssignment(i)" title="cancel">x</button><img src="' + slide.url + '" alt="幻灯片 ' + (i+1) + '"><div class="slide-label">' + slide.pageLabel + '</div></div>';
     }).join('');
   }
 
